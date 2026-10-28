@@ -411,6 +411,6 @@ export type ProviderConfigSeed = Pick<
   | "modelMaxInputTokens" | "defaultMaxOutputTokens" | "modelMaxOutputTokens"
   | "reasoningEfforts" | "modelReasoningEfforts" | "modelDefaultReasoningEfforts" | "reasoningEffortMap" | "modelReasoningEffortMap" | "reasoningWireFormat"
   | "noVisionModels" | "noReasoningModels" | "noTemperatureModels" | "noTopPModels" | "noStopModels" | "noPenaltyModels"
-  | "autoToolChoiceOnlyModels" | "preserveReasoningContentModels" | "requiresReasoningPlaceholderModels" | "reasoningSplitModels" | "inlineThinkTagModels" | "reasoningDetailsModels" | "thinkingToggleModels" | "thinkingBudgetModels" | "escapeBuiltinToolNames" | "openaiChatEofTolerance" | "foldDeveloperRoleToSystem" | "showThinkingSummary"
+  | "autoToolChoiceOnlyModels" | "preserveReasoningContentModels" | "requiresReasoningPlaceholderModels" | "reasoningSplitModels" | "inlineThinkTagModels" | "reasoningDetailsModels" | "thinkingToggleModels" | "thinkingBudgetModels" | "escapeBuiltinToolNames" | "openaiChatEofTolerance" | "parallelToolCalls" | "omitChatStreamOptions" | "foldDeveloperRoleToSystem" | "showThinkingSummary"
   | "googleMode" | "project" | "location" | "headers"
 >;
