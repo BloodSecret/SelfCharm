@@ -155,6 +155,7 @@ export const PROVIDER_MODEL_RENAME_ROLES = {
   unsafeAllowNativeLocalExec: "none",
   nativeLocalExec: "none",
   messagePhaseInference: "none",
+  omitChatStreamOptions: "none",
   tlsProfile: "none",
 } as const satisfies Record<keyof OcxProviderConfig, ModelRenameRole>;
 
