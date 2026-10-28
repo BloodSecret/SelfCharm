@@ -367,6 +367,8 @@ export interface ProviderRegistryEntry {
   chatServiceTier?: boolean;
   /** OpenAI Chat EOF policy for gateways that omit terminal frames after complete tool calls. */
   openaiChatEofTolerance?: boolean;
+  /** Seed OcxProviderConfig.omitChatStreamOptions for strict Chat Completions endpoints. */
+  omitChatStreamOptions?: boolean;
   /**
    * Record that this destination rejects the Chat `developer` role (`400 role 'developer' is not
    * allowed`), so both the translated route and the native `/v1/chat/completions` passthrough send
