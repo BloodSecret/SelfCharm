@@ -21,6 +21,7 @@ import { isolateClientLifecycleLock } from "../helpers/client-lifecycle-lock";
 
 const roots: string[] = [];
 let lifecycleLock: ReturnType<typeof isolateClientLifecycleLock>;
+let lockRoot = "";
 const handles: Array<Awaited<ReturnType<typeof startClaudeIntercept>>> = [];
 const priorHome = process.env.OPENCODEX_HOME;
 const priorDesktop = process.env.OPENCODEX_CLAUDE_DESKTOP_CONFIG_DIR;
@@ -45,14 +46,14 @@ async function cleanupPickerStartup(remove: (dir: string) => void = removeTreeWi
   if (failures.length === 1) throw failures[0];
   if (failures.length > 1) throw new AggregateError(failures, "picker-startup cleanup failed");
 }
-// Cases own multiple roots; keep their cleanup oracle intact and use the preload fixture.
+// Cases own multiple roots; keep their cleanup oracle intact and give the lock its own temp root.
 beforeEach(() => {
-  if (priorHome === undefined) throw new Error("picker startup requires an isolated preload home");
-  lifecycleLock = isolateClientLifecycleLock(priorHome);
+  lockRoot = mkdtempSync(join(tmpdir(), "ocx-picker-startup-lock-"));
+  lifecycleLock = isolateClientLifecycleLock(lockRoot);
 });
 afterEach(async () => {
   try { await cleanupPickerStartup(); }
-  finally { lifecycleLock.restore(); }
+  finally { lifecycleLock.restore(); removeTreeWithRetry(lockRoot); }
 });
 const routes = async () => ({ nativeSlugs: [], routedModels: [] });
 function setup() {

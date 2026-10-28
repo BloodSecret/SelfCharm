@@ -97,14 +97,18 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
-  for (const created of running.splice(0)) await created.stop();
-  for (const close of closeFixtures.splice(0)) await close();
-  lifecycleLock.restore();
-  for (const key of ENV_KEYS) {
-    if (previous[key] === undefined) delete process.env[key];
-    else process.env[key] = previous[key];
+  try {
+    for (const created of running.splice(0)) await created.stop();
+    for (const close of closeFixtures.splice(0)) await close();
+  } finally {
+    // A rejected stop or close must not leave the lifecycle spies, environment or root behind.
+    lifecycleLock.restore();
+    for (const key of ENV_KEYS) {
+      if (previous[key] === undefined) delete process.env[key];
+      else process.env[key] = previous[key];
+    }
+    removeTreeWithRetry(root);
   }
-  removeTreeWithRetry(root);
 });
 
 describe("pickerDesired", () => {
