@@ -235,7 +235,7 @@ export function createOpenAIChatAdapter(provider: OcxProviderConfig): ProviderAd
           const parallelToolCalls = chatParallelToolCallsWireValue(provider, parsed.options.parallelToolCalls);
           if (parallelToolCalls !== undefined) body.parallel_tool_calls = parallelToolCalls;
         }
-        if (parsed.stream) body.stream_options = { include_usage: true };
+        if (parsed.stream && provider.omitChatStreamOptions !== true) body.stream_options = { include_usage: true };
 
         const bodyJson = JSON.stringify(applyGithubCopilotContextTier(body, provider, parsed.modelId, incoming?.providerName));
         const tierLog = createAdapterTierMetadata(
