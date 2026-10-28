@@ -998,6 +998,8 @@ export interface OcxProviderConfig {
    * incomplete JSON, missing arguments, and empty streams remain truncation errors.
    */
   openaiChatEofTolerance?: boolean;
+  /** Omit OpenAI stream_options from Chat Completions when the destination does not support it. */
+  omitChatStreamOptions?: boolean;
   /**
    * Opt-in: fold a `developer` message into a `system` message instead of forwarding the role.
    *
