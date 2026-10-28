@@ -40,6 +40,9 @@ const priorClaude = process.env.CLAUDE_CONFIG_DIR;
 // Drain hardening and reaps before retrying removal; retain failures and restore env.
 async function cleanupPickerWindows(remove: (dir: string) => void = removeTreeWithRetry): Promise<void> {
   const failures: unknown[] = [];
+  // A restart with an applied profile starts a detached controller.enable; join it before the
+  // handles stop and the lifecycle spy is restored, so it cannot reach the account-wide lock.
+  try { await getClaudePickerController()?.transition(async () => {}); } catch (error) { failures.push(error); }
   for (const handle of handles.splice(0)) {
     try { await handle?.stop(); } catch (error) { failures.push(error); }
   }

@@ -32,6 +32,9 @@ const priorDesktop = process.env.OPENCODEX_CLAUDE_DESKTOP_CONFIG_DIR;
 // even when an earlier one fails, the environment is always restored, and failures are rethrown.
 async function cleanupPickerStartup(remove: (dir: string) => void = removeTreeWithRetry): Promise<void> {
   const failures: unknown[] = [];
+  // A restart with an applied profile starts a detached controller.enable; join it before the
+  // handles stop and the lifecycle spy is restored, so it cannot reach the account-wide lock.
+  try { await getClaudePickerController()?.transition(async () => {}); } catch (error) { failures.push(error); }
   for (const handle of handles.splice(0)) {
     try { await handle?.stop(); } catch (error) { failures.push(error); }
   }
