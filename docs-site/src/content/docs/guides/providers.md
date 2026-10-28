@@ -768,6 +768,7 @@ region-pinned EU routes, is at [opper.ai/models](https://opper.ai/models). Opper
 | Nscale Serverless Inference | `https://inference.api.nscale.com/v1` |
 | Vultr Serverless Inference | `https://api.vultrinference.com/v1` |
 | Baseten Model APIs | `https://inference.baseten.co/v1` |
+| Cohere Compatibility API | `https://api.cohere.ai/compatibility/v1` |
 | Command Code | `https://api.commandcode.ai/provider/v1` |
 | OrcaRouter | `https://api.orcarouter.ai/v1` |
 | PackyCode | `https://cf.api.fan/v1` |
@@ -1300,6 +1301,14 @@ Create a key in [Novita's key manager](https://novita.ai/settings/key-management
 > with **Call Model APIs** access for shared/production use. Dedicated Truss `predict` endpoints use different
 > hosts and schemas and are not routed by this preset.
 > Live discovery for this preset is capped at a 1 MiB response and 256 raw model rows.
+
+### Cohere OpenAI Compatibility API
+
+The `cohere` preset uses Cohere's official [OpenAI Compatibility API](https://docs.cohere.com/docs/compatibility-api) with the shared `openai-chat` adapter. Its initial static catalog contains `command-a-plus-05-2026` (128k context, 64k maximum output), as listed in [Cohere's model guide](https://docs.cohere.com/docs/models).
+
+The preset advertises only the maintained model seed: live model discovery and automatic API-key verification are disabled until they receive provider-specific coverage. The reasoning control is limited to the documented `none` and `high` values. The adapter omits `parallel_tool_calls` (explicitly unsupported by the Compatibility API) and `stream_options` (not in its documented supported-parameter list). This preset targets Chat Completions only; it does not claim Responses API support. Streaming and tool use are documented upstream, but a live smoke test is still required before claiming end-to-end verification, and streamed usage availability is not yet confirmed.
+
+Create or manage keys at [Cohere API keys](https://dashboard.cohere.com/api-keys).
 
 ### WorkBuddy AI subscription
 
