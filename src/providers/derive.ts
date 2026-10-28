@@ -60,6 +60,8 @@ export interface DerivedKeyLoginProvider {
   thinkingBudgetModels?: string[];
   escapeBuiltinToolNames?: boolean;
   openaiChatEofTolerance?: boolean;
+  parallelToolCalls?: boolean;
+  omitChatStreamOptions?: boolean;
   foldDeveloperRoleToSystem?: boolean;
   googleMode?: "ai-studio" | "vertex" | "cloud-code-assist";
   project?: string;
@@ -286,6 +288,8 @@ export function providerConfigSeed(entry: ProviderRegistryEntry): OcxProviderCon
     ...(entry.promptCacheKey !== undefined ? { promptCacheKey: entry.promptCacheKey } : {}),
     ...(entry.chatServiceTier !== undefined ? { chatServiceTier: entry.chatServiceTier } : {}),
     ...(entry.openaiChatEofTolerance !== undefined ? { openaiChatEofTolerance: entry.openaiChatEofTolerance } : {}),
+    ...(entry.parallelToolCalls !== undefined ? { parallelToolCalls: entry.parallelToolCalls } : {}),
+    ...(entry.omitChatStreamOptions !== undefined ? { omitChatStreamOptions: entry.omitChatStreamOptions } : {}),
     ...(entry.foldDeveloperRoleToSystem !== undefined ? { foldDeveloperRoleToSystem: entry.foldDeveloperRoleToSystem } : {}),
     ...(entry.responsesPath !== undefined ? { responsesPath: entry.responsesPath } : {}),
     ...(entry.chatCompletionsPath !== undefined ? { chatCompletionsPath: entry.chatCompletionsPath } : {}),
@@ -355,6 +359,8 @@ export function deriveKeyLoginMap(): Record<string, DerivedKeyLoginProvider> {
       ...(entry.noTopPModels ? { noTopPModels: [...entry.noTopPModels] } : {}),
       ...(entry.noStopModels ? { noStopModels: [...entry.noStopModels] } : {}),
       ...(entry.noPenaltyModels ? { noPenaltyModels: [...entry.noPenaltyModels] } : {}),
+      ...(entry.parallelToolCalls !== undefined ? { parallelToolCalls: entry.parallelToolCalls } : {}),
+      ...(entry.omitChatStreamOptions !== undefined ? { omitChatStreamOptions: entry.omitChatStreamOptions } : {}),
       ...(entry.autoToolChoiceOnlyModels ? { autoToolChoiceOnlyModels: [...entry.autoToolChoiceOnlyModels] } : {}),
       ...(entry.preserveReasoningContentModels ? { preserveReasoningContentModels: [...entry.preserveReasoningContentModels] } : {}),
       ...(entry.requiresReasoningPlaceholderModels ? { requiresReasoningPlaceholderModels: [...entry.requiresReasoningPlaceholderModels] } : {}),
@@ -611,6 +617,10 @@ export function enrichProviderFromRegistry(name: string, prov: OcxProviderConfig
   if (prov.chatServiceTier === undefined && seed.chatServiceTier !== undefined) prov.chatServiceTier = seed.chatServiceTier;
   if (prov.openaiChatEofTolerance === undefined && seed.openaiChatEofTolerance !== undefined) {
     prov.openaiChatEofTolerance = seed.openaiChatEofTolerance;
+  }
+  if (prov.parallelToolCalls === undefined && seed.parallelToolCalls !== undefined) prov.parallelToolCalls = seed.parallelToolCalls;
+  if (prov.omitChatStreamOptions === undefined && seed.omitChatStreamOptions !== undefined) {
+    prov.omitChatStreamOptions = seed.omitChatStreamOptions;
   }
   if (prov.foldDeveloperRoleToSystem === undefined && seed.foldDeveloperRoleToSystem !== undefined) {
     prov.foldDeveloperRoleToSystem = seed.foldDeveloperRoleToSystem;
