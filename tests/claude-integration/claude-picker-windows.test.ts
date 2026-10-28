@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, beforeEach, expect, test } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createServer as createHttpsServer } from "node:https";
 import { connect } from "node:net";
@@ -26,8 +26,10 @@ import {
 import type { SecurityResult, SecurityRunner } from "../../src/claude/intercept/picker-trust";
 import { filePickerCaStore, memoryPickerCaStore } from "../helpers/picker-ca-store";
 import type { OcxConfig } from "../../src/types";
+import { isolateClientLifecycleLock } from "../helpers/client-lifecycle-lock";
 
 const roots: string[] = [];
+let lifecycleLock: ReturnType<typeof isolateClientLifecycleLock>;
 const handles: Array<Awaited<ReturnType<typeof startClaudeIntercept>>> = [];
 const priorHome = process.env.OPENCODEX_HOME;
 const priorDesktop = process.env.OPENCODEX_CLAUDE_DESKTOP_CONFIG_DIR;
@@ -52,7 +54,15 @@ async function cleanupPickerWindows(remove: (dir: string) => void = removeTreeWi
   if (failures.length === 1) throw failures[0];
   if (failures.length > 1) throw new AggregateError(failures, "picker-windows cleanup failed");
 }
-afterEach(() => cleanupPickerWindows());
+// Cases own multiple roots; keep their cleanup oracle intact and use the preload fixture.
+beforeEach(() => {
+  if (priorHome === undefined) throw new Error("Windows picker requires an isolated preload home");
+  lifecycleLock = isolateClientLifecycleLock(priorHome);
+});
+afterEach(async () => {
+  try { await cleanupPickerWindows(); }
+  finally { lifecycleLock.restore(); }
+});
 
 const routes = async () => ({ nativeSlugs: [], routedModels: [] });
 

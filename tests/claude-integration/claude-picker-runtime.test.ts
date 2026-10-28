@@ -23,8 +23,10 @@ import type { SecurityRunner } from "../../src/claude/intercept/picker-trust";
 import { getClaudePickerRuntime, startClaudeIntercept } from "../../src/claude/intercept/runtime";
 import type { OcxConfig } from "../../src/types";
 import { removeTreeWithRetry } from "../helpers/remove-tree";
+import { isolateClientLifecycleLock } from "../helpers/client-lifecycle-lock";
 
 let root = "";
+let lifecycleLock: ReturnType<typeof isolateClientLifecycleLock>;
 const previous: Record<string, string | undefined> = {};
 const ENV_KEYS = ["OPENCODEX_HOME", "OPENCODEX_CLAUDE_DESKTOP_CONFIG_DIR", "CLAUDE_CONFIG_DIR"] as const;
 const running: PickerRuntime[] = [];
@@ -87,6 +89,7 @@ const INTERCEPT = { kind: "intercept", port: LISTENER_PORT };
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), "ocx-picker-runtime-"));
+  lifecycleLock = isolateClientLifecycleLock(root);
   for (const key of ENV_KEYS) previous[key] = process.env[key];
   process.env.OPENCODEX_HOME = root;
   process.env.OPENCODEX_CLAUDE_DESKTOP_CONFIG_DIR = join(root, "desktop-library");
@@ -96,6 +99,7 @@ beforeEach(() => {
 afterEach(async () => {
   for (const created of running.splice(0)) await created.stop();
   for (const close of closeFixtures.splice(0)) await close();
+  lifecycleLock.restore();
   for (const key of ENV_KEYS) {
     if (previous[key] === undefined) delete process.env[key];
     else process.env[key] = previous[key];

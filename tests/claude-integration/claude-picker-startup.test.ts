@@ -1,4 +1,4 @@
-import { afterEach, expect, spyOn, test } from "bun:test";
+import { afterEach, beforeEach, expect, spyOn, test } from "bun:test";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
@@ -17,8 +17,10 @@ import { flushConfigDirHardeningAndReaps, hardenConfigDir } from "../../src/conf
 import { resetHardenedStateForTests, setAsyncIcaclsRunnerForTests, setPlatformForTests } from "../../src/lib/windows-secret-acl";
 import { removeTreeWithRetry } from "../helpers/remove-tree";
 import type { OcxConfig } from "../../src/types";
+import { isolateClientLifecycleLock } from "../helpers/client-lifecycle-lock";
 
 const roots: string[] = [];
+let lifecycleLock: ReturnType<typeof isolateClientLifecycleLock>;
 const handles: Array<Awaited<ReturnType<typeof startClaudeIntercept>>> = [];
 const priorHome = process.env.OPENCODEX_HOME;
 const priorDesktop = process.env.OPENCODEX_CLAUDE_DESKTOP_CONFIG_DIR;
@@ -43,7 +45,15 @@ async function cleanupPickerStartup(remove: (dir: string) => void = removeTreeWi
   if (failures.length === 1) throw failures[0];
   if (failures.length > 1) throw new AggregateError(failures, "picker-startup cleanup failed");
 }
-afterEach(() => cleanupPickerStartup());
+// Cases own multiple roots; keep their cleanup oracle intact and use the preload fixture.
+beforeEach(() => {
+  if (priorHome === undefined) throw new Error("picker startup requires an isolated preload home");
+  lifecycleLock = isolateClientLifecycleLock(priorHome);
+});
+afterEach(async () => {
+  try { await cleanupPickerStartup(); }
+  finally { lifecycleLock.restore(); }
+});
 const routes = async () => ({ nativeSlugs: [], routedModels: [] });
 function setup() {
   const root = mkdtempSync(join(tmpdir(), "ocx-picker-startup-")); roots.push(root);
